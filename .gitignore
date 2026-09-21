@@ -216,3 +216,16 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# ==========================================
+# JetBrains (PyCharm) 专属忽略规则
+# ==========================================
+.idea/
+*.iml
+*.iws
+
+# 如果你使用的是 PyCharm 的虚拟环境，顺便确保它也被忽略
+.venv/
+venv/
+ENV/
