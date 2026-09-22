@@ -1,0 +1,9 @@
+
+langgraph==1.2.12
+langsmith==0.14.0
+
+langgraph-cli==0.4.31
+langgraph-api==0.14.3
+
+pydantic==2.13.4
+colorama==0.4.6

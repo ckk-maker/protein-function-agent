@@ -24,7 +24,7 @@ class Source(BaseModel):
     doi: Optional[str]=Field(default=None)
 
 class Scope(BaseModel):
-    task_type: Optional[Literal["domain_review"]]=Field(default=None)   # 任务类型，当前只有领域调研
+    task_type: Optional[Literal["domain_review","other"]]=Field(default=None)   # 任务类型，当前只有领域调研
     focus:Optional[str]=Field(default=None) # 聚焦点
     dimensions:Optional[List[str]]=Field(default=None)  # 维度
 
@@ -66,7 +66,11 @@ class ResearchState(BaseModel):
     research_scope:Optional[Scope]=Field(default=None)   #
 
     # 研究计划
-    research_subtasks:List[SubTask]=Field(default_factory=list)   # 需要完成的子任务
+    research_subtasks:Annotated[
+        List[SubTask],
+        Field(max_length=5,description="规划的子任务最多为5个"),
+        Field(min_length=1,description="最少要有1个子任务")
+    ]=Field(default_factory=list)                                   # 需要完成的子任务
     current_subtask_id:Optional[int]=Field(default=None)            # 当前正在处理的子任务
 
     # 检索过程
