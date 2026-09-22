@@ -39,10 +39,6 @@ class SearchResult(BaseModel):
 
 
 
-"""
-    
-"""
-
 class ResearchStateIn(BaseModel):
     question: Optional[str]=Field(default=None)  # 研究问题
 
@@ -59,7 +55,7 @@ class ResearchStateOut(BaseModel):
 
 class ResearchState(BaseModel):
 
-    question: Optional[str]=Field(default=None)     # 研究问题
+    question: str=Field()     # 研究问题，强制为非空
 
     # 问题分析
     research_topic:Optional[str]=Field(default=None)    # 研究问题的主题

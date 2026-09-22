@@ -3,14 +3,18 @@
     - 图的构建
     - 完成到任务规划node
 """
-from src.protein_researcher.state import ResearchState,ResearchStateIn,ResearchStateOut
+import json
+from langchain_core.messages import SystemMessage, HumanMessage
+
+from src.protein_researcher.llm_model import get_llm
+from src.protein_researcher.prompts import *
+from src.protein_researcher.state import ResearchState,ResearchStateIn,ResearchStateOut,Scope
 from langgraph.graph import START, END, StateGraph
 from typing_extensions import Literal
 
 
 
 
-# TODO: 各个node的函数定义
 
 # 问题分析
 def analyze_question(state:ResearchState):
@@ -21,6 +25,46 @@ def analyze_question(state:ResearchState):
     :return:
         research_topic和research_scope，包括任务类型、聚焦点、具体维度
     """
+
+    """
+        1.拼装prompt
+        2.调用llm进行答案获取
+        3.从答案中提取出topic和scope
+        4.更新state
+    """
+
+    # 拼装prompt
+    message=[
+        SystemMessage(content=analyze_question_system_prompt),
+        HumanMessage(
+            content=f"""
+                <use_question>
+                {state.question}
+                </use_question>
+                """
+        )
+    ]
+
+    # 调用llm获取result
+    llm=get_llm()
+    response=llm.invoke(message)
+
+    # 提取topic、scope
+    result=json.loads(response.content)
+    topic=result["topic"]
+    scope=Scope.model_validate(result["scope"])
+
+    print(topic)
+    print(scope)
+
+    # 更新state
+    return {
+        "research_topic":topic,
+        "research_scope":scope
+    }
+
+
+
     pass
 
 
