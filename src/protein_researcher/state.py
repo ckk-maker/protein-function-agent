@@ -38,6 +38,21 @@ class SearchResult(BaseModel):
     info: Optional[str]=Field(default=None)
 
 
+"""
+    node相关
+"""
+
+class AnalyzeQuestionOut(BaseModel):
+    """
+        定义analyze_question节点的llm结构化输出
+    """
+    topic: str = Field(description="研究主题")
+    scope: Scope = Field(description="研究范围")
+
+
+"""
+    state相关
+"""
 
 class ResearchStateIn(BaseModel):
     question: Optional[str]=Field(default=None)  # 研究问题

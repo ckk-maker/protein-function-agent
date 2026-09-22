@@ -1,10 +1,26 @@
 
 ### TODO
 
-对于这个问题——林麝中关于麝香分析的关键酶是什么？，analyze_question节点给出的还是domain_review
+#### analyze_question节点函数输出不稳定
+问题：
+- 对于analyze_question节点函数，我测试了两个问题，
+- 一个是“EC酶功能预测有哪些方法直接研究”，
+- 另一个是“林麝中关于麝香分析的关键酶是什么？”，
+- 我期望的research_scope中的task_type分别是domain_review和other，但结果是两个都是domain_review
+- 也就是说无法区别问题是不是domain_review，而是都划分为domain_review。
 
+分析思路：
+- 目前使用的llm调用是invoke，具体的返回格式是在system prompt中定义的，可能会导致llm无法正确理解格式要求
+- 可以改成llm.with_structured_output(...)  进行结构化输出
+  - 实践后还是输出domain_review
+  - 这个解决的是格式问题
 
+问题本质：LLM 对分类边界理解错误
 
+解决：
+- 方案A：在prompt中给出另一个分类（other）的示例，并对这两个分类进行描述性解释
+  - 实践后成功输出预期的task_type
+- 方案B：将这个分类问题抽象成一个单独的节点
 
 
 

@@ -69,7 +69,14 @@ finally determine relevant research dimensions.
 
 Possible values:
 - domain_review
+    - Users want to understand the development of a certain research direction.
 - other
+    - Queries that do not fall under the category of domain reviews include:
+        - Queries regarding a specific protein
+        - Queries regarding a specific mechanism in a specific species
+        - Queries regarding a specific experimental subject
+        - Queries regarding a specific gene, enzyme, or pathway
+        - ......
 
 Possible dimensions include:
 - background:
@@ -99,7 +106,7 @@ Only include dimensions relevant to the user's question.
 </scope>
 
 
-<example>
+<example-1>
 INPUT:
     EC酶功能预测有哪些方法？
     
@@ -121,7 +128,28 @@ OUTPUT:
       }
     }
 
-</example>
+</example-1>
+
+<example-2>
+INPUT:
+    林麝中关于麝香分析的关键酶是什么？
+    
+OUTPUT:
+    {
+    "topic": "Key enzymes in musk biosynthesis of Moschus berezovskii",
+      "scope": {
+        "task_type": "other",
+        "dimensions": [
+          "biological_background",
+          "protein_family",
+          "functional_annotation",
+          "sequence_information",
+          "recent_progress"
+        "focus": "Identify specific enzymes responsible for musk compound biosynthesis and their characterization in Moschus berezovskii."
+      }
+    }
+
+</example-2>
 
 
 """

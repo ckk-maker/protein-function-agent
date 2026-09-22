@@ -2,13 +2,14 @@
     9.22:
     - 图的构建
     - 完成到任务规划node
+        - 只实现了analyze_question
 """
 import json
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from src.protein_researcher.llm_model import get_llm
 from src.protein_researcher.prompts import *
-from src.protein_researcher.state import ResearchState,ResearchStateIn,ResearchStateOut,Scope
+from src.protein_researcher.state import *
 from langgraph.graph import START, END, StateGraph
 from typing_extensions import Literal
 
@@ -45,27 +46,30 @@ def analyze_question(state:ResearchState):
         )
     ]
 
-    # 调用llm获取result
+    # # 调用llm获取result
+    # llm=get_llm()
+    # response=llm.invoke(message)
+    #
+    # # 提取topic、scope
+    # result=json.loads(response.content)
+    # topic=result["topic"]
+    # scope=Scope.model_validate(result["scope"])
+    #
+    # print(topic)
+    # print(scope)
+
+
+    # 结构化获取topic、scope
     llm=get_llm()
-    response=llm.invoke(message)
+    str_llm=llm.with_structured_output(AnalyzeQuestionOut)
+    result:AnalyzeQuestionOut=str_llm.invoke(message)
 
-    # 提取topic、scope
-    result=json.loads(response.content)
-    topic=result["topic"]
-    scope=Scope.model_validate(result["scope"])
-
-    print(topic)
-    print(scope)
 
     # 更新state
     return {
-        "research_topic":topic,
-        "research_scope":scope
+        "research_topic":result.topic,
+        "research_scope":result.scope
     }
-
-
-
-    pass
 
 
 # 任务规划
