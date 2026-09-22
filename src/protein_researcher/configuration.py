@@ -18,6 +18,7 @@ class Configuration(BaseModel):
         default="https://uni-api.cstcloud.cn/v1",
     )
 
+    # @classmethod将该方法声明为类所有，而不是实例化对象，cls是传入的参数，表示类本身
     @classmethod
     def load_from_env(cls):
         """手动加载 .env 文件，并实例化 BaseModel"""
@@ -30,5 +31,5 @@ class Configuration(BaseModel):
             LLM_PROVIDER=os.environ.get("LLM_PROVIDER", "cstcloud"),
             LOCAL_LLM=os.environ.get("LOCAL_LLM", "qwen3.5"),
             OPENAI_API_KEY=os.environ.get("OPENAI_API_KEY", ""),
-            OPENAI_BASE_URL=os.environ.get("OPENAI_BASE_URL", "https://cstcloud.cn"),
+            OPENAI_BASE_URL=os.environ.get("OPENAI_BASE_URL", "https://cstcloud.cn/v1"),
         )
