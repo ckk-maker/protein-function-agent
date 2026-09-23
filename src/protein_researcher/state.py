@@ -1,7 +1,7 @@
 import operator
 from typing import Annotated, List, Optional, Literal
 from pydantic import BaseModel, Field
-
+from sympy import GreaterThan
 
 
 class Evidence(BaseModel):
@@ -24,14 +24,22 @@ class Source(BaseModel):
     doi: Optional[str]=Field(default=None)
 
 class Scope(BaseModel):
-    task_type: Optional[Literal["domain_review","other"]]=Field(default=None)   # 任务类型，当前只有领域调研
-    focus:Optional[str]=Field(default=None) # 聚焦点
-    dimensions:Optional[List[str]]=Field(default=None)  # 维度
+    task_type: Literal["domain_review","other"]=Field()   # 任务类型，当前只有领域调研
+    focus:str=Field() # 聚焦点
+    dimensions:List[str]=Field()  # 维度，可以从这些维度去思考解决问题
 
 class SubTask(BaseModel):
-    id: Optional[str]=Field(default=None)
-    question: Optional[str]=Field(default=None)
-    status: Optional[Literal["done","doing","todo"]]=Field(default=None)
+    """
+        会被解析成JSON格式：
+            {
+            "id":123,
+            "question":"",
+            "status":"doing"
+            }
+    """
+    id: Annotated[int,Field(gt=0,description="序号为正数")]  # 1、2、3
+    question: str=Field()
+    status: Literal["done","doing","todo"]=Field(default="todo")
 
 
 class SearchResult(BaseModel):
@@ -48,6 +56,23 @@ class AnalyzeQuestionOut(BaseModel):
     """
     topic: str = Field(description="研究主题")
     scope: Scope = Field(description="研究范围")
+
+
+class PlanSubtaskOut(BaseModel):
+    """
+        "questions":["",""]
+    """
+    questions:list[str]=Field(description="任务规划中llm返回的问题描述")
+
+class SelectDimensionOut(BaseModel):
+    """
+        会被解析成JSON格式：
+            {
+            "dimensions":["",""]
+            }
+    """
+    dimensions:list[str]=Field(description="被选中的问题维度")
+
 
 
 """
@@ -82,7 +107,11 @@ class ResearchState(BaseModel):
         Field(max_length=5,description="规划的子任务最多为5个"),
         Field(min_length=1,description="最少要有1个子任务")
     ]=Field(default_factory=list)                                   # 需要完成的子任务
-    current_subtask_id:Optional[int]=Field(default=None)            # 当前正在处理的子任务
+    current_subtask_id:Annotated[
+        int,
+        Field(gt=0,description="序号为正数"),
+        Field(default=1)
+    ]                                                               # 当前正在处理的子任务
 
     # 检索过程
     search_queries:Annotated[List[str],operator.add]=Field(default_factory=list)  #检索的query

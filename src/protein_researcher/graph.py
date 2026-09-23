@@ -4,7 +4,8 @@
     - 完成到任务规划node
         - 只实现了analyze_question
 """
-import json
+from __future__ import annotations
+
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from src.protein_researcher.llm_model import get_llm
@@ -81,7 +82,73 @@ def plan_subtask(state:ResearchState):
     :return:
         一系列subtask
     """
-    pass
+
+    domain_review_dimensions=[
+        "background",      # 背景与基本概念
+        "method",          # 主流方法与技术路线
+        "dataset",         # 数据集与数据来源
+        "evaluation",      # 评价指标和实验设置
+        "performance",     # 方法表现与比较
+        "limitation",      # 当前问题和局限
+        "application",     # 应用场景
+        "trend"            # 发展趋势和未来方向
+    ]
+
+    # 针对不同的task_type进行维度选择
+    if state.research_scope.task_type == "domain_review":
+        candidate_dimensions=state.research_scope.dimensions+domain_review_dimensions
+    else:
+        candidate_dimensions=domain_review_dimensions
+
+    selected_dimensions=_select_dimensions(candidate_dimensions,state)
+
+    message = [
+        SystemMessage(content=plan_subtask_system_prompt),
+        HumanMessage(content=plan_subtask_human_prompt.format(
+            question=state.question,
+            topic=state.research_topic,
+            focus=state.research_scope.focus,
+            selected_dimensions=selected_dimensions
+        )),
+    ]
+
+    llm=get_llm().with_structured_output(PlanSubtaskOut)
+    result:PlanSubtaskOut=llm.invoke(message)
+
+    research_subtasks=[]
+    for index,que in enumerate(result.questions):
+        task=SubTask(id=index+1,question=que)
+        research_subtasks.append(task)  # 这里把task作为一个SubTask对象传入
+
+    return {
+        "research_subtasks":research_subtasks,
+        "current_subtask_id":research_subtasks[0].id,
+    }
+
+
+def _select_dimensions(ds:List[str],state:ResearchState)->List[str]:
+    """
+        对于待选择的维度，选取有价值的维度
+        具体：
+            拼装prompt
+            调用llm
+            获取有价值的维度
+    """
+    message=[
+        SystemMessage(content=select_dimensions_system_prompt),
+        HumanMessage(content=select_dimensions_human_prompt.format(
+            question=state.question,
+            topic=state.research_topic,
+            focus=state.research_scope.focus,
+            candidate_dimensions=ds
+        )),
+    ]
+
+    llm=get_llm()
+    str_llm = llm.with_structured_output(SelectDimensionOut)
+    result:SelectDimensionOut=str_llm.invoke(message)
+
+    return result.dimensions
 
 
 # 任务执行
